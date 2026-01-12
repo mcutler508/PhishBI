@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(python fetch_phish_data.py:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

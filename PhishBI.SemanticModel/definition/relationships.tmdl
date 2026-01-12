@@ -1,0 +1,4 @@
+relationship 3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d
+	fromColumn: Fact_Shows.VenueID
+	toColumn: Dim_Venues.VenueID
+

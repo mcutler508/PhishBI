@@ -1,0 +1,46 @@
+table Fact_State_Summary
+	lineageTag: 81e0f6a7-b5c8-8d9e-0f1a-2b3c4d5e6f7a
+
+	column State
+		dataType: string
+		lineageTag: 1s1s2t3u-4v5w-6x7y-8z9a-0b1c2d3e4f5g
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalShows
+		dataType: int64
+		formatString: 0
+		lineageTag: 2t2t3u4v-5w6x-7y8z-9a0b-1c2d3e4f5g6h
+		summarizeBy: sum
+		sourceColumn: TotalShows
+
+		annotation SummarizationSetBy = Automatic
+
+	column UniqueVenues
+		dataType: int64
+		formatString: 0
+		lineageTag: 3u3u4v5w-6x7y-8z9a-0b1c-2d3e4f5g6h7i
+		summarizeBy: sum
+		sourceColumn: UniqueVenues
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_State_Summary = m
+		mode: import
+		source =
+				let
+					Source = PhishDataSource,
+					Fact_State_Summary_Sheet = Source{[Item="Fact_State_Summary",Kind="Sheet"]}[Data],
+					PromotedHeaders = Table.PromoteHeaders(Fact_State_Summary_Sheet, [PromoteAllScalars=true]),
+					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+						{"State", type text},
+						{"TotalShows", Int64.Type},
+						{"UniqueVenues", Int64.Type}
+					})
+				in
+					ChangedType
+
+	annotation PBI_ResultType = Table
+

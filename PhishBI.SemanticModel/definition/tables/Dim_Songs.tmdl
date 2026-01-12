@@ -1,0 +1,75 @@
+table Dim_Songs
+	lineageTag: 69c8d4e5-f3a6-6b7c-8d9e-0f1a2b3c4d5e
+
+	column SongID
+		dataType: int64
+		isKey
+		formatString: 0
+		lineageTag: 1s1s2t3u-4v5w-6x7y-8z9a-0b1c2d3e4f5g
+		summarizeBy: none
+		sourceColumn: SongID
+
+		annotation SummarizationSetBy = Automatic
+
+	column SongName
+		dataType: string
+		lineageTag: 2t2t3u4v-5w6x-7y8z-9a0b-1c2d3e4f5g6h
+		summarizeBy: none
+		sourceColumn: SongName
+
+		annotation SummarizationSetBy = Automatic
+
+	column TimesPlayed
+		dataType: int64
+		formatString: 0
+		lineageTag: 3u3u4v5w-6x7y-8z9a-0b1c-2d3e4f5g6h7i
+		summarizeBy: sum
+		sourceColumn: TimesPlayed
+
+		annotation SummarizationSetBy = Automatic
+
+	column Debut
+		dataType: string
+		lineageTag: 4v4v5w6x-7y8z-9a0b-1c2d-3e4f5g6h7i8j
+		summarizeBy: none
+		sourceColumn: Debut
+
+		annotation SummarizationSetBy = Automatic
+
+	column LastPlayed
+		dataType: string
+		lineageTag: 5w5w6x7y-8z9a-0b1c-2d3e-4f5g6h7i8j9k
+		summarizeBy: none
+		sourceColumn: LastPlayed
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gap
+		dataType: int64
+		formatString: 0
+		lineageTag: 6x6x7y8z-9a0b-1c2d-3e4f-5g6h7i8j9k0l
+		summarizeBy: sum
+		sourceColumn: Gap
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Songs = m
+		mode: import
+		source =
+				let
+					Source = PhishDataSource,
+					Dim_Songs_Sheet = Source{[Item="Dim_Songs",Kind="Sheet"]}[Data],
+					PromotedHeaders = Table.PromoteHeaders(Dim_Songs_Sheet, [PromoteAllScalars=true]),
+					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+						{"SongID", Int64.Type},
+						{"SongName", type text},
+						{"TimesPlayed", Int64.Type},
+						{"Debut", type text},
+						{"LastPlayed", type text},
+						{"Gap", Int64.Type}
+					})
+				in
+					ChangedType
+
+	annotation PBI_ResultType = Table
+

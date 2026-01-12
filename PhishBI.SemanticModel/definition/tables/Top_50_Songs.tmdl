@@ -1,0 +1,46 @@
+table Top_50_Songs
+	lineageTag: a3b2c8d9-e7f0-0a1b-2c3d-4e5f6a7b8c9d
+
+	column Rank
+		dataType: int64
+		formatString: 0
+		lineageTag: 1r1r2s3t-4u5v-6w7x-8y9z-0a1b2c3d4e5f
+		summarizeBy: none
+		sourceColumn: Rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column SongName
+		dataType: string
+		lineageTag: 2s2s3t4u-5v6w-7x8y-9z0a-1b2c3d4e5f6g
+		summarizeBy: none
+		sourceColumn: SongName
+
+		annotation SummarizationSetBy = Automatic
+
+	column TimesPlayed
+		dataType: int64
+		formatString: 0
+		lineageTag: 3t3t4u5v-6w7x-8y9z-0a1b-2c3d4e5f6g7h
+		summarizeBy: sum
+		sourceColumn: TimesPlayed
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Top_50_Songs = m
+		mode: import
+		source =
+				let
+					Source = PhishDataSource,
+					Top_50_Songs_Sheet = Source{[Item="Top_50_Songs",Kind="Sheet"]}[Data],
+					PromotedHeaders = Table.PromoteHeaders(Top_50_Songs_Sheet, [PromoteAllScalars=true]),
+					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+						{"Rank", Int64.Type},
+						{"SongName", type text},
+						{"TimesPlayed", Int64.Type}
+					})
+				in
+					ChangedType
+
+	annotation PBI_ResultType = Table
+

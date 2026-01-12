@@ -110,6 +110,8 @@ def process_shows_data(shows_data):
         })
     
     df = pd.DataFrame(shows_list)
+    # Convert Year to integer for era calculations
+    df['Year'] = pd.to_numeric(df['Year'], errors='coerce').fillna(0).astype(int)
     return df
 
 def process_venues_data(venues_data):

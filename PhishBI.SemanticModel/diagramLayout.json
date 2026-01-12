@@ -1,0 +1,113 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 568,
+            "y": 38
+          },
+          "nodeIndex": "Dim_Songs",
+          "nodeLineageTag": "69c8d4e5-f3a6-6b7c-8d9e-0f1a2b3c4d5e",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 337,
+            "y": 300
+          },
+          "nodeIndex": "Dim_Venues",
+          "nodeLineageTag": "58b7c9d3-e2f4-5a6b-7c8d-9e0f1a2b3c4d",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 852,
+            "y": 50
+          },
+          "nodeIndex": "Fact_Era_Summary",
+          "nodeLineageTag": "70d9e5f6-a4b7-7c8d-9e0f-1a2b3c4d5e6f",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 50,
+            "y": -50
+          },
+          "nodeIndex": "Fact_Shows",
+          "nodeLineageTag": "47a6b8e2-d1c4-4d3a-9c8f-1e5a7b3d9f2a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 1136,
+            "y": 74
+          },
+          "nodeIndex": "Fact_State_Summary",
+          "nodeLineageTag": "81e0f6a7-b5c8-8d9e-0f1a-2b3c4d5e6f7a",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 1420,
+            "y": 86
+          },
+          "nodeIndex": "Fact_Year_Trend",
+          "nodeLineageTag": "92f1a7b8-c6d9-9e0f-1a2b-3c4d5e6f7a8b",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 1704,
+            "y": 74
+          },
+          "nodeIndex": "Top_50_Songs",
+          "nodeLineageTag": "a3b2c8d9-e7f0-0a1b-2c3d-4e5f6a7b8c9d",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 6
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

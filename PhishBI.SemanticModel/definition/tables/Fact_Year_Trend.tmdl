@@ -1,0 +1,37 @@
+table Fact_Year_Trend
+	lineageTag: 92f1a7b8-c6d9-9e0f-1a2b-3c4d5e6f7a8b
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 1y1y2z3a-4b5c-6d7e-8f9g-0h1i2j3k4l5m
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalShows
+		dataType: int64
+		formatString: 0
+		lineageTag: 2z2z3a4b-5c6d-7e8f-9g0h-1i2j3k4l5m6n
+		summarizeBy: sum
+		sourceColumn: TotalShows
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Year_Trend = m
+		mode: import
+		source =
+				let
+					Source = PhishDataSource,
+					Fact_Year_Trend_Sheet = Source{[Item="Fact_Year_Trend",Kind="Sheet"]}[Data],
+					PromotedHeaders = Table.PromoteHeaders(Fact_Year_Trend_Sheet, [PromoteAllScalars=true]),
+					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+						{"Year", Int64.Type},
+						{"TotalShows", Int64.Type}
+					})
+				in
+					ChangedType
+
+	annotation PBI_ResultType = Table
+

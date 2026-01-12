@@ -1,0 +1,67 @@
+table Fact_Era_Summary
+	lineageTag: 70d9e5f6-a4b7-7c8d-9e0f-1a2b3c4d5e6f
+
+	column Era
+		dataType: string
+		lineageTag: 1e1e2f3g-4h5i-6j7k-8l9m-0n1o2p3q4r5s
+		summarizeBy: none
+		sourceColumn: Era
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalShows
+		dataType: int64
+		formatString: 0
+		lineageTag: 2f2f3g4h-5i6j-7k8l-9m0n-1o2p3q4r5s6t
+		summarizeBy: sum
+		sourceColumn: TotalShows
+
+		annotation SummarizationSetBy = Automatic
+
+	column StartYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 3g3g4h5i-6j7k-8l9m-0n1o-2p3q4r5s6t7u
+		summarizeBy: none
+		sourceColumn: StartYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column EndYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 4h4h5i6j-7k8l-9m0n-1o2p-3q4r5s6t7u8v
+		summarizeBy: none
+		sourceColumn: EndYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column AvgShowsPerYear
+		dataType: double
+		lineageTag: 5i5i6j7k-8l9m-0n1o-2p3q-4r5s6t7u8v9w
+		summarizeBy: sum
+		sourceColumn: AvgShowsPerYear
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Fact_Era_Summary = m
+		mode: import
+		source =
+				let
+					Source = PhishDataSource,
+					Fact_Era_Summary_Sheet = Source{[Item="Fact_Era_Summary",Kind="Sheet"]}[Data],
+					PromotedHeaders = Table.PromoteHeaders(Fact_Era_Summary_Sheet, [PromoteAllScalars=true]),
+					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+						{"Era", type text},
+						{"TotalShows", Int64.Type},
+						{"StartYear", Int64.Type},
+						{"EndYear", Int64.Type},
+						{"AvgShowsPerYear", type number}
+					})
+				in
+					ChangedType
+
+	annotation PBI_ResultType = Table
+
