@@ -1,0 +1,10 @@
+# Python dependencies for Phish.net data fetcher
+
+# Core dependencies
+requests>=2.31.0
+pandas>=2.1.0
+openpyxl>=3.1.2
+
+# Environment variable management
+python-dotenv>=1.0.0
+
