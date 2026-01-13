@@ -1,0 +1,8 @@
+/// Data source for Phish.net Excel export (Optimized Model)
+expression PhishDataSource =
+		let
+			Source = Excel.Workbook(File.Contents("C:\Users\mcutl\Documents\PowerBIApp\PhishBI\Phish_Optimized_Data.xlsx"), null, true)
+		in
+			Source
+	lineageTag: f93c15aa-557b-4f0a-bf39-c54c716e403c
+

@@ -32,7 +32,7 @@ table Fact_Setlists
 		isKey
 		formatString: 0
 		lineageTag: 1a1a2b3c-4d5e-6f7g-8h9i-0j1k2l3m4n5o
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: SetlistID
 
 		annotation SummarizationSetBy = Automatic
@@ -55,14 +55,6 @@ table Fact_Setlists
 
 		annotation SummarizationSetBy = Automatic
 
-	column ShowDate
-		dataType: string
-		lineageTag: 4d4d5e6f-7g8h-9i0j-1k2l-3m4n5o6p7q8r
-		summarizeBy: none
-		sourceColumn: ShowDate
-
-		annotation SummarizationSetBy = Automatic
-
 	column SetNumber
 		dataType: string
 		lineageTag: 5e5e6f7g-8h9i-0j1k-2l3m-4n5o6p7q8r9s
@@ -75,7 +67,7 @@ table Fact_Setlists
 		dataType: int64
 		formatString: 0
 		lineageTag: 6f6f7g8h-9i0j-1k2l-3m4n-5o6p7q8r9s0t
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: SongPosition
 
 		annotation SummarizationSetBy = Automatic
@@ -99,7 +91,6 @@ table Fact_Setlists
 						{"SetlistID", Int64.Type},
 						{"ShowID", Int64.Type},
 						{"SongID", Int64.Type},
-						{"ShowDate", type text},
 						{"SetNumber", type text},
 						{"SongPosition", Int64.Type},
 						{"SongNotes", type text}

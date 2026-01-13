@@ -1,0 +1,585 @@
+table Fact_Shows
+	lineageTag: 47a6b8e2-d1c4-4d3a-9c8f-1e5a7b3d9f2a
+
+	/// =========================================
+	/// TIER 1: ATOMIC BASE MEASURES
+	/// Single-responsibility primitives - no CALCULATE logic
+	/// =========================================
+	measure '# Shows' = COUNTROWS(Fact_Shows)
+		formatString: #,0
+		lineageTag: b62a63e3-617f-494a-8031-3436f4e53586
+
+	measure '# Unique Shows' = DISTINCTCOUNT(Fact_Shows[ShowID])
+		formatString: #,0
+		lineageTag: adc34214-fc3e-4765-b7cb-bf09942c4898
+
+	measure '# Unique Venues' = DISTINCTCOUNT(Fact_Shows[VenueID])
+		formatString: #,0
+		lineageTag: bd9251dd-e88d-4734-ac0a-44f02f56ec41
+
+	measure '# Unique Cities' = DISTINCTCOUNT(Fact_Shows[City])
+		formatString: #,0
+		lineageTag: ff7d639f-5ed6-4596-8781-4d553bc33067
+
+	measure '# Unique States' = DISTINCTCOUNT(Fact_Shows[State])
+		formatString: #,0
+		lineageTag: 7e83a4d5-613b-4db0-bf40-aab4d788b692
+
+	measure '# Unique Countries' = DISTINCTCOUNT(Fact_Shows[Country])
+		formatString: #,0
+		lineageTag: 4ee7ddfa-c378-422b-9646-0b816dd67842
+
+	measure '# Unique Tours' = DISTINCTCOUNT(Fact_Shows[TourName])
+		formatString: #,0
+		lineageTag: 42b78187-37ba-42ae-965e-9c34106f541e
+
+	measure '# Unique Years' = DISTINCTCOUNT(Fact_Shows[Year])
+		formatString: #,0
+		lineageTag: ca501563-bcf8-4344-8fd9-3d3e0e2b1cf7
+
+	measure 'Total Rating Points' = SUM(Fact_Shows[Rating])
+		formatString: #,0.00
+		lineageTag: a1dd65ad-1178-41db-a6ba-3370665f831c
+
+	measure 'Total Review Count' = SUM(Fact_Shows[ReviewCount])
+		formatString: #,0
+		lineageTag: 48324b0e-53b9-4fe8-a7f9-d0811905a560
+
+	/// =========================================
+	/// TIER 2: SEMANTIC BUSINESS MEASURES
+	/// Built on Tier 1 only - business logic layer
+	/// =========================================
+	measure 'Avg Shows per Venue' = DIVIDE([# Shows], [# Unique Venues], 0)
+		formatString: #,0.0
+		lineageTag: d961aced-a42b-4942-b8d3-748325808d75
+
+	measure 'Avg Shows per City' = DIVIDE([# Shows], [# Unique Cities], 0)
+		formatString: #,0.0
+		lineageTag: f70608d7-4dd7-4e85-a654-e672a9852979
+
+	measure 'Avg Shows per State' = DIVIDE([# Shows], [# Unique States], 0)
+		formatString: #,0.0
+		lineageTag: 0bcf7e4a-f29b-4307-8afe-bfcf5c3039f7
+
+	measure 'Avg Shows per Country' = DIVIDE([# Shows], [# Unique Countries], 0)
+		formatString: #,0.0
+		lineageTag: f848be88-fe67-4b67-be59-9c0a635b8234
+
+	measure 'Avg Shows per Year' = DIVIDE([# Shows], [# Unique Years], 0)
+		formatString: #,0.0
+		lineageTag: 1c380871-027a-44e4-80b1-7605e57b5619
+
+	measure 'Avg Shows per Tour' = DIVIDE([# Shows], [# Unique Tours], 0)
+		formatString: #,0.0
+		lineageTag: f7467b8b-5958-4882-aadc-271cbfb19d63
+
+	measure 'Avg Rating' = DIVIDE([Total Rating Points], [# Shows], 0)
+		formatString: #,0.00
+		lineageTag: b18cfe07-7f47-4b60-85b0-97e8f88fa847
+
+	measure 'Avg Reviews per Show' = DIVIDE([Total Review Count], [# Shows], 0)
+		formatString: #,0.0
+		lineageTag: ab9da85b-d358-4cea-9cf8-f4d2b15c74d9
+
+	measure 'Shows with Reviews' =
+			CALCULATE(
+			    [# Shows],
+			    Fact_Shows[ReviewCount] > 0
+			)
+		formatString: #,0
+		lineageTag: 809008ab-0bdf-449c-ba02-a35f2bc78304
+
+	measure '% Shows with Reviews' = DIVIDE([Shows with Reviews], [# Shows], 0)
+		formatString: 0.0%
+		lineageTag: 2e2a587a-16fe-4606-a55e-7cfdbbe093d4
+
+	measure 'Avg Rating (Reviewed Shows Only)' =
+			CALCULATE(
+			    [Avg Rating],
+			    Fact_Shows[ReviewCount] > 0
+			)
+		formatString: #,0.00
+		lineageTag: 4a488e2c-7c29-4ce0-a48d-871f3909d741
+
+	/// =========================================
+	/// TIER 3: INTELLIGENCE MEASURES
+	/// Time intelligence, trends, rolling windows
+	/// =========================================
+	measure 'Shows YTD' =
+			TOTALYTD(
+			    [# Shows],
+			    Fact_Shows[ShowDate]
+			)
+		formatString: #,0
+		lineageTag: ac77ed02-379b-42bd-85cb-e403becaf4ff
+
+	measure 'Shows Prior Year' =
+			CALCULATE(
+			    [# Shows],
+			    SAMEPERIODLASTYEAR(Fact_Shows[ShowDate])
+			)
+		formatString: #,0
+		lineageTag: ef1203ac-c0d9-4ab0-8cb2-b16eb4177e3a
+
+	measure 'Shows YoY Growth' = [# Shows] - [Shows Prior Year]
+		formatString: #,0
+		lineageTag: f6c489eb-e13d-4da1-a414-0810901eba99
+
+	measure 'Shows YoY Growth %' = DIVIDE([Shows YoY Growth], [Shows Prior Year], 0)
+		formatString: 0.0%
+		lineageTag: 491c6ed1-307f-4dbd-a2f1-7717dd5f2f8e
+
+	measure 'Cumulative Shows' =
+			CALCULATE(
+			    [# Shows],
+			    FILTER(
+			        ALL(Fact_Shows[ShowDate]),
+			        Fact_Shows[ShowDate] <= MAX(Fact_Shows[ShowDate])
+			    )
+			)
+		formatString: #,0
+		lineageTag: 13581c3a-9736-4465-b266-b6e98a17643a
+
+	measure 'Rolling 30 Day Shows' =
+			CALCULATE(
+			    [# Shows],
+			    DATESINPERIOD(
+			        Fact_Shows[ShowDate],
+			        LASTDATE(Fact_Shows[ShowDate]),
+			        -30,
+			        DAY
+			    )
+			)
+		formatString: #,0
+		lineageTag: fc0c03c8-e2bc-428d-b671-987267a7bb42
+
+	measure 'Rolling 90 Day Shows' =
+			CALCULATE(
+			    [# Shows],
+			    DATESINPERIOD(
+			        Fact_Shows[ShowDate],
+			        LASTDATE(Fact_Shows[ShowDate]),
+			        -90,
+			        DAY
+			    )
+			)
+		formatString: #,0
+		lineageTag: 7fff4951-e5ee-4c48-a9d8-c21fc3269080
+
+	measure 'Rolling 365 Day Shows' =
+			CALCULATE(
+			    [# Shows],
+			    DATESINPERIOD(
+			        Fact_Shows[ShowDate],
+			        LASTDATE(Fact_Shows[ShowDate]),
+			        -365,
+			        DAY
+			    )
+			)
+		formatString: #,0
+		lineageTag: 61ac6e4b-89ed-4077-9e87-23a48cb5f37f
+
+	measure 'Avg Rating (Rolling 365 Days)' =
+			CALCULATE(
+			    [Avg Rating],
+			    DATESINPERIOD(
+			        Fact_Shows[ShowDate],
+			        LASTDATE(Fact_Shows[ShowDate]),
+			        -365,
+			        DAY
+			    )
+			)
+		formatString: #,0.00
+		lineageTag: d4b6b0f2-be45-45f1-8cda-b64c59b929cf
+
+	measure 'Era Shows' = [# Shows]
+		formatString: #,0
+		displayFolder: Era Analysis
+		lineageTag: 8da97939-d350-4cde-82c3-fc5272183faa
+
+	measure 'Era Avg Rating' = [Avg Rating]
+		formatString: #,0.00
+		displayFolder: Era Analysis
+		lineageTag: 189669e7-64c0-447a-b15e-901587aa55c6
+
+	measure 'Shows vs Era Avg' =
+			[# Shows] -
+			CALCULATE(
+			    [# Shows],
+			    ALLEXCEPT(Fact_Shows, Fact_Shows[Era])
+			) / DISTINCTCOUNT(Fact_Shows[Year])
+		formatString: #,0.0
+		displayFolder: Era Analysis
+		lineageTag: fa560b48-e665-4776-b889-732fb1b8150a
+
+	/// =========================================
+	/// TIER 4: KPI / NARRATIVE MEASURES
+	/// Headlines, records, ranks, leaderboards
+	/// =========================================
+	measure 'Total Shows All Time' =
+			CALCULATE(
+			    [# Shows],
+			    ALL(Fact_Shows)
+			)
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 146467f3-99e0-4d0d-8252-32a170f2e87c
+
+	measure 'First Show Date' = MIN(Fact_Shows[ShowDate])
+		formatString: Short Date
+		displayFolder: KPIs
+		lineageTag: 6fb153ff-4b0c-4578-a7ae-dddd89ab1af9
+
+	measure 'Last Show Date' = MAX(Fact_Shows[ShowDate])
+		formatString: Short Date
+		displayFolder: KPIs
+		lineageTag: 4ea176b9-d327-4a62-96b1-6a8dc5e396aa
+
+	measure 'Days Since Last Show' =
+			DATEDIFF(
+			    [Last Show Date],
+			    TODAY(),
+			    DAY
+			)
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: df02fd42-23ef-4bf6-9bc6-dde03aa7b458
+
+	measure 'Career Span (Years)' =
+			DATEDIFF(
+			    [First Show Date],
+			    [Last Show Date],
+			    YEAR
+			)
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: b758689c-76f8-4344-8fdd-3b75dd37824b
+
+	measure 'Highest Rated Show' = MAX(Fact_Shows[Rating])
+		formatString: #,0.00
+		displayFolder: Records
+		lineageTag: d811e6ac-71f3-4294-a2bd-f473b889aeb0
+
+	measure 'Lowest Rated Show' = MIN(Fact_Shows[Rating])
+		formatString: #,0.00
+		displayFolder: Records
+		lineageTag: d7f777d7-0c48-45e1-9576-c39429b8c401
+
+	measure 'Most Reviews in Single Show' = MAX(Fact_Shows[ReviewCount])
+		formatString: #,0
+		displayFolder: Records
+		lineageTag: 0e2f7d99-35f0-4058-80d3-c4c42361c18c
+
+	measure 'Busiest Year' =
+			VAR MaxShows =
+			    MAXX(
+			        VALUES(Fact_Shows[Year]),
+			        [# Shows]
+			    )
+			RETURN
+			    CALCULATE(
+			        MAX(Fact_Shows[Year]),
+			        FILTER(
+			            VALUES(Fact_Shows[Year]),
+			            [# Shows] = MaxShows
+			        )
+			    )
+		formatString: 0
+		displayFolder: Records
+		lineageTag: 02ada8db-f2c8-40e9-9c4f-0285565c67c5
+
+	measure 'Busiest Year Show Count' =
+			MAXX(
+			    VALUES(Fact_Shows[Year]),
+			    [# Shows]
+			)
+		formatString: #,0
+		displayFolder: Records
+		lineageTag: 162e03a0-2bf1-49e5-900c-eff2076c3f1d
+
+	measure 'Most Played Venue' =
+			VAR MaxShows =
+			    MAXX(
+			        VALUES(Fact_Shows[VenueName]),
+			        [# Shows]
+			    )
+			RETURN
+			    CALCULATE(
+			        MIN(Fact_Shows[VenueName]),
+			        FILTER(
+			            VALUES(Fact_Shows[VenueName]),
+			            [# Shows] = MaxShows
+			        )
+			    )
+		displayFolder: Leaderboards
+		lineageTag: 77e8bfd0-a64d-4517-b538-fb8e5b4244c3
+
+	measure 'Most Played Venue Show Count' =
+			MAXX(
+			    VALUES(Fact_Shows[VenueName]),
+			    [# Shows]
+			)
+		formatString: #,0
+		displayFolder: Leaderboards
+		lineageTag: 497079b1-fa0f-4253-b7df-92411d1184f0
+
+	measure 'Venue Rank by Shows' =
+			RANKX(
+			    ALL(Fact_Shows[VenueName]),
+			    [# Shows],
+			    ,
+			    DESC,
+			    DENSE
+			)
+		formatString: #,0
+		displayFolder: Leaderboards
+		lineageTag: 33292552-c264-4e3d-af90-d5e8af4243cb
+
+	measure 'State Rank by Shows' =
+			RANKX(
+			    ALL(Fact_Shows[State]),
+			    [# Shows],
+			    ,
+			    DESC,
+			    DENSE
+			)
+		formatString: #,0
+		displayFolder: Leaderboards
+		lineageTag: 6ab04f8c-2cf8-4b67-ac4e-0e9581dc560c
+
+	measure 'City Rank by Shows' =
+			RANKX(
+			    ALL(Fact_Shows[City]),
+			    [# Shows],
+			    ,
+			    DESC,
+			    DENSE
+			)
+		formatString: #,0
+		displayFolder: Leaderboards
+		lineageTag: 213d67d9-f994-41a0-9fb8-f9253942287b
+
+	measure 'Tour Rank by Shows' =
+			RANKX(
+			    ALL(Fact_Shows[TourName]),
+			    [# Shows],
+			    ,
+			    DESC,
+			    DENSE
+			)
+		formatString: #,0
+		displayFolder: Leaderboards
+		lineageTag: 23d304c1-6849-4591-bd99-b7748e75641d
+
+	measure '% of All Time Shows' = DIVIDE([# Shows], [Total Shows All Time], 0)
+		formatString: 0.00%
+		displayFolder: KPIs
+		lineageTag: 074618c7-183e-4356-acad-fc8267ee73d2
+
+	measure 'Shows per Day (Lifetime Avg)' =
+			DIVIDE(
+			    [Total Shows All Time],
+			    DATEDIFF([First Show Date], [Last Show Date], DAY),
+			    0
+			)
+		formatString: #,0.00
+		displayFolder: KPIs
+		lineageTag: b73c31c4-1513-4724-9828-c9cf87d5192b
+
+	measure 'Current Era' =
+			CALCULATE(
+			    MAX(Fact_Shows[Era]),
+			    FILTER(
+			        ALL(Fact_Shows),
+			        Fact_Shows[ShowDate] = [Last Show Date]
+			    )
+			)
+		displayFolder: KPIs
+		lineageTag: 5fb23939-0610-418f-bc9d-88984f6df19e
+
+	measure 'Eras Played' = DISTINCTCOUNT(Fact_Shows[Era])
+		formatString: #,0
+		displayFolder: Era Analysis
+		lineageTag: c0acd877-ff6a-4dfb-8348-fb8ab32d3e1c
+
+	measure 'Top Rated Era' =
+			VAR MaxRating =
+			    MAXX(
+			        VALUES(Fact_Shows[Era]),
+			        [Avg Rating]
+			    )
+			RETURN
+			    CALCULATE(
+			        MIN(Fact_Shows[Era]),
+			        FILTER(
+			            VALUES(Fact_Shows[Era]),
+			            [Avg Rating] = MaxRating
+			        )
+			    )
+		displayFolder: Era Analysis
+		lineageTag: ffafa4bf-b2f6-433a-ac3a-052bd04c340a
+
+	measure 'Most Prolific Era' =
+			VAR MaxShows =
+			    MAXX(
+			        VALUES(Fact_Shows[Era]),
+			        [# Shows]
+			    )
+			RETURN
+			    CALCULATE(
+			        MIN(Fact_Shows[Era]),
+			        FILTER(
+			            VALUES(Fact_Shows[Era]),
+			            [# Shows] = MaxShows
+			        )
+			    )
+		displayFolder: Era Analysis
+		lineageTag: 1eef1ed0-4c6e-4d35-866f-59288ac4f669
+
+	measure 'Is Current Era' =
+			IF(
+			    SELECTEDVALUE(Fact_Shows[Era]) = [Current Era],
+			    "✓ Current",
+			    ""
+			)
+		displayFolder: Era Analysis
+		lineageTag: a389f7f7-ac25-46b5-9ff7-93f20b08c0f1
+
+	column ShowID
+		dataType: int64
+		formatString: 0
+		lineageTag: 1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6
+		summarizeBy: none
+		sourceColumn: ShowID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShowDate
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 2b3c4d5e-6f7g-8h9i-0j1k-l2m3n4o5p6q7
+		summarizeBy: none
+		sourceColumn: ShowDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 3c4d5e6f-7g8h-9i0j-1k2l-m3n4o5p6q7r8
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column VenueID
+		dataType: int64
+		formatString: 0
+		lineageTag: 4d5e6f7g-8h9i-0j1k-2l3m-n4o5p6q7r8s9
+		summarizeBy: none
+		sourceColumn: VenueID
+
+		annotation SummarizationSetBy = Automatic
+
+	column VenueName
+		dataType: string
+		lineageTag: 5e6f7g8h-9i0j-1k2l-3m4n-o5p6q7r8s9t0
+		summarizeBy: none
+		sourceColumn: VenueName
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 6f7g8h9i-0j1k-2l3m-4n5o-p6q7r8s9t0u1
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 7g8h9i0j-1k2l-3m4n-5o6p-q7r8s9t0u1v2
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 8h9i0j1k-2l3m-4n5o-6p7q-r8s9t0u1v2w3
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Artist
+		dataType: string
+		lineageTag: 9i0j1k2l-3m4n-5o6p-7q8r-s9t0u1v2w3x4
+		summarizeBy: none
+		sourceColumn: Artist
+
+		annotation SummarizationSetBy = Automatic
+
+	column TourName
+		dataType: string
+		lineageTag: 0j1k2l3m-4n5o-6p7q-8r9s-t0u1v2w3x4y5
+		summarizeBy: none
+		sourceColumn: TourName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rating
+		dataType: double
+		lineageTag: 1k2l3m4n-5o6p-7q8r-9s0t-u1v2w3x4y5z6
+		summarizeBy: sum
+		sourceColumn: Rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ReviewCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 2l3m4n5o-6p7q-8r9s-0t1u-v2w3x4y5z6a7
+		summarizeBy: sum
+		sourceColumn: ReviewCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column Era
+		dataType: string
+		lineageTag: 3m4n5o6p-7q8r-9s0t-1u2v-w3x4y5z6a7b8
+		summarizeBy: none
+		sourceColumn: Era
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Shows = m
+		mode: import
+		source =
+				let
+					Source = PhishDataSource,
+					Fact_Shows_Sheet = Source{[Item="Fact_Shows",Kind="Sheet"]}[Data],
+					PromotedHeaders = Table.PromoteHeaders(Fact_Shows_Sheet, [PromoteAllScalars=true]),
+					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+						{"ShowID", Int64.Type},
+						{"ShowDate", type datetime},
+						{"Year", Int64.Type},
+						{"VenueID", Int64.Type},
+						{"VenueName", type text},
+						{"City", type text},
+						{"State", type text},
+						{"Country", type text},
+						{"Artist", type text},
+						{"TourName", type text},
+						{"Rating", type number},
+						{"ReviewCount", Int64.Type},
+						{"Era", type text}
+					})
+				in
+					ChangedType
+
+	annotation PBI_ResultType = Table
+

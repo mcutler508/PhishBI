@@ -1,0 +1,161 @@
+table Dim_Venues
+	lineageTag: 58b7c9d3-e2f4-5a6b-7c8d-9e0f1a2b3c4d
+
+	/// =========================================
+	/// TIER 1: ATOMIC BASE MEASURES (Venues)
+	/// =========================================
+	measure '# Venues' = COUNTROWS(Dim_Venues)
+		formatString: #,0
+		lineageTag: 82190b94-a36e-4175-bd7d-e346cd381840
+
+	measure 'Total Historic Shows (Venue Data)' = SUM(Dim_Venues[PastShowsCount])
+		formatString: #,0
+		lineageTag: 3379678a-369e-4bb4-afaf-ebdbb1f74f49
+
+	/// =========================================
+	/// TIER 2: SEMANTIC BUSINESS MEASURES (Venues)
+	/// =========================================
+	measure 'Avg Historic Shows per Venue' = DIVIDE([Total Historic Shows (Venue Data)], [# Venues], 0)
+		formatString: #,0.0
+		lineageTag: 06fb054a-ba9e-4d2e-bc0c-934945db9b37
+
+	measure 'Venues with 10+ Shows' =
+			CALCULATE(
+			    [# Venues],
+			    Dim_Venues[PastShowsCount] >= 10
+			)
+		formatString: #,0
+		lineageTag: 57eb2602-6736-47d2-94dd-6b01b7de10cd
+
+	measure 'Venues with 50+ Shows' =
+			CALCULATE(
+			    [# Venues],
+			    Dim_Venues[PastShowsCount] >= 50
+			)
+		formatString: #,0
+		lineageTag: cb3f2f1b-380f-46b2-978d-477b33c8faf2
+
+	measure 'Venues with 100+ Shows' =
+			CALCULATE(
+			    [# Venues],
+			    Dim_Venues[PastShowsCount] >= 100
+			)
+		formatString: #,0
+		lineageTag: 48492195-ac65-431d-9cfe-81a8d843622e
+
+	measure '% Venues with 10+ Shows' = DIVIDE([Venues with 10+ Shows], [# Venues], 0)
+		formatString: 0.0%
+		lineageTag: cf34c899-3c72-4a37-af28-88274c4cfbd9
+
+	/// =========================================
+	/// TIER 4: KPI / NARRATIVE MEASURES (Venues)
+	/// =========================================
+	measure 'Most Historic Shows Venue' =
+			VAR MaxShows =
+			    MAXX(
+			        VALUES(Dim_Venues[VenueName]),
+			        MAX(Dim_Venues[PastShowsCount])
+			    )
+			RETURN
+			    CALCULATE(
+			        MIN(Dim_Venues[VenueName]),
+			        FILTER(
+			            VALUES(Dim_Venues[VenueName]),
+			            MAX(Dim_Venues[PastShowsCount]) = MaxShows
+			        )
+			    )
+		displayFolder: Venue Records
+		lineageTag: 6b88ef65-3338-4e55-90eb-bfaf82fc117d
+
+	measure 'Most Historic Shows Count' =
+			MAXX(
+			    VALUES(Dim_Venues[VenueName]),
+			    MAX(Dim_Venues[PastShowsCount])
+			)
+		formatString: #,0
+		displayFolder: Venue Records
+		lineageTag: 25fd6b5a-db78-4016-9e3a-824431970203
+
+	measure 'Venue Rank by Historic Shows' =
+			RANKX(
+			    ALL(Dim_Venues[VenueName]),
+			    MAX(Dim_Venues[PastShowsCount]),
+			    ,
+			    DESC,
+			    DENSE
+			)
+		formatString: #,0
+		displayFolder: Venue Leaderboards
+		lineageTag: fde52adc-7bdd-418c-a93a-9d4ae4faea8b
+
+	column VenueID
+		dataType: int64
+		isKey
+		formatString: 0
+		lineageTag: 1a1a2b3c-4d5e-6f7g-8h9i-0j1k2l3m4n5o
+		summarizeBy: none
+		sourceColumn: VenueID
+
+		annotation SummarizationSetBy = Automatic
+
+	column VenueName
+		dataType: string
+		lineageTag: 2b2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p
+		summarizeBy: none
+		sourceColumn: VenueName
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 3c3c4d5e-6f7g-8h9i-0j1k-2l3m4n5o6p7q
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 4d4d5e6f-7g8h-9i0j-1k2l-3m4n5o6p7q8r
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 5e5e6f7g-8h9i-0j1k-2l3m-4n5o6p7q8r9s
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column PastShowsCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 6f6f7g8h-9i0j-1k2l-3m4n-5o6p7q8r9s0t
+		summarizeBy: sum
+		sourceColumn: PastShowsCount
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Venues = m
+		mode: import
+		source =
+				let
+					Source = PhishDataSource,
+					Dim_Venues_Sheet = Source{[Item="Dim_Venues",Kind="Sheet"]}[Data],
+					PromotedHeaders = Table.PromoteHeaders(Dim_Venues_Sheet, [PromoteAllScalars=true]),
+					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+						{"VenueID", Int64.Type},
+						{"VenueName", type text},
+						{"City", type text},
+						{"State", type text},
+						{"Country", type text},
+						{"PastShowsCount", Int64.Type}
+					})
+				in
+					ChangedType
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "c8b7e80c00ae908d50b3",
+  "position": {
+    "x": 586.37473684210522,
+    "y": 100.02863157894737,
+    "z": 1001,
+    "height": 619.14273684210525,
+    "width": 446.67957894736844,
+    "tabOrder": 1001
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Size": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Songs"
+                    }
+                  },
+                  "Property": "Total Times Played"
+                }
+              },
+              "queryRef": "Dim_Songs.Total Times Played",
+              "nativeQueryRef": "Total Times Played"
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Shows"
+                    }
+                  },
+                  "Property": "Avg Rating"
+                }
+              },
+              "queryRef": "Fact_Shows.Avg Rating",
+              "nativeQueryRef": "Avg Rating",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Setlists"
+                    }
+                  },
+                  "Property": "# Unique Songs Performed"
+                }
+              },
+              "queryRef": "Fact_Setlists.# Unique Songs Performed",
+              "nativeQueryRef": "# Unique Songs Performed"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

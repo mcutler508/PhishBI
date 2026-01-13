@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "PhishBI"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "430c34ee-63fd-4547-9543-aa3970d2e3de"
+  }
+}

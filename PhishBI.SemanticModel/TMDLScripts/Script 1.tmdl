@@ -1,0 +1,113 @@
+createOrReplace
+
+	table Fact_Setlists
+		lineageTag: 71e1f7a8-b6c9-9d0e-1f2a-3b4c5d6e7f8a
+
+		/// =========================================
+		/// TIER 1: ATOMIC BASE MEASURES (Setlists)
+		/// =========================================
+		measure '# Setlist Records' = COUNTROWS(Fact_Setlists)
+			formatString: #,0
+			lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+
+		measure '# Shows with Setlists' = DISTINCTCOUNT(Fact_Setlists[ShowID])
+			formatString: #,0
+			lineageTag: b2c3d4e5-f6a7-8901-bcde-f12345678901
+
+		measure '# Unique Songs Performed' = DISTINCTCOUNT(Fact_Setlists[SongID])
+			formatString: #,0
+			lineageTag: c3d4e5f6-a7b8-9012-cdef-123456789012
+
+		/// =========================================
+		/// TIER 2: SEMANTIC BUSINESS MEASURES (Setlists)
+		/// =========================================
+		measure 'Avg Songs per Show' = DIVIDE([# Setlist Records], [# Shows with Setlists], 0)
+			formatString: #,0.0
+			lineageTag: d4e5f6a7-b8c9-0123-def1-234567890123
+
+		measure 'Avg Set Position' = AVERAGE(Fact_Setlists[SongPosition])
+			formatString: #,0.0
+			lineageTag: e5f6a7b8-c9d0-1234-ef12-345678901234
+
+		column SetlistID
+			dataType: int64
+			isKey
+			formatString: 0
+			lineageTag: 1a1a2b3c-4d5e-6f7g-8h9i-0j1k2l3m4n5o
+			summarizeBy: count
+			sourceColumn: SetlistID
+
+			annotation SummarizationSetBy = Automatic
+
+		column ShowID
+			dataType: int64
+			formatString: 0
+			lineageTag: 2b2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p
+			summarizeBy: none
+			sourceColumn: ShowID
+
+			annotation SummarizationSetBy = Automatic
+
+		column SongID
+			dataType: int64
+			formatString: 0
+			lineageTag: 3c3c4d5e-6f7g-8h9i-0j1k-2l3m4n5o6p7q
+			summarizeBy: none
+			sourceColumn: SongID
+
+			annotation SummarizationSetBy = Automatic
+
+		column ShowDate
+			dataType: string
+			lineageTag: 4d4d5e6f-7g8h-9i0j-1k2l-3m4n5o6p7q8r
+			summarizeBy: none
+			sourceColumn: ShowDate
+
+			annotation SummarizationSetBy = Automatic
+
+		column SetNumber
+			dataType: string
+			lineageTag: 5e5e6f7g-8h9i-0j1k-2l3m-4n5o6p7q8r9s
+			summarizeBy: none
+			sourceColumn: SetNumber
+
+			annotation SummarizationSetBy = Automatic
+
+		column SongPosition
+			dataType: int64
+			formatString: 0
+			lineageTag: 6f6f7g8h-9i0j-1k2l-3m4n-5o6p7q8r9s0t
+			summarizeBy: sum
+			sourceColumn: SongPosition
+
+			annotation SummarizationSetBy = Automatic
+
+		column SongNotes
+			dataType: string
+			lineageTag: 7g7g8h9i-0j1k-2l3m-4n5o-6p7q8r9s0t1u
+			summarizeBy: none
+			sourceColumn: SongNotes
+
+			annotation SummarizationSetBy = Automatic
+
+		partition Fact_Setlists = m
+			mode: import
+			source =
+					let
+						Source = PhishDataSource,
+						Fact_Setlists_Sheet = Source{[Item="Fact_Setlists",Kind="Sheet"]}[Data],
+						PromotedHeaders = Table.PromoteHeaders(Fact_Setlists_Sheet, [PromoteAllScalars=true]),
+						ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
+							{"SetlistID", Int64.Type},
+							{"ShowID", Int64.Type},
+							{"SongID", Int64.Type},
+							{"ShowDate", type text},
+							{"SetNumber", type text},
+							{"SongPosition", Int64.Type},
+							{"SongNotes", type text}
+						})
+					in
+						ChangedType
+
+		annotation PBI_ResultType = Table
+

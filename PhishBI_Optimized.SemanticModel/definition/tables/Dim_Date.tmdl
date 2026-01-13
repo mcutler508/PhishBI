@@ -1,0 +1,122 @@
+table Dim_Date
+	lineageTag: 91a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c
+
+	column Date
+		dataType: string
+		isKey
+		lineageTag: 1d1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 2e2e3f4a-5b6c-7d8e-9f0a-1b2c3d4e5f6a
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: 3f3f4a5b-6c7d-8e9f-0a1b-2c3d4e5f6a7b
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: int64
+		formatString: 0
+		lineageTag: 4a4a5b6c-7d8e-9f0a-1b2c-3d4e5f6a7b8c
+		summarizeBy: none
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthName
+		dataType: string
+		lineageTag: 5b5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d
+		summarizeBy: none
+		sourceColumn: MonthName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: 6c6c7d8e-9f0a-1b2c-3d4e-5f6a7b8c9d0e
+		summarizeBy: none
+		sourceColumn: Day
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeek
+		dataType: int64
+		formatString: 0
+		lineageTag: 7d7d8e9f-0a1b-2c3d-4e5f-6a7b8c9d0e1f
+		summarizeBy: none
+		sourceColumn: DayOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayOfWeekName
+		dataType: string
+		lineageTag: 8e8e9f0a-1b2c-3d4e-5f6a-7b8c9d0e1f2a
+		summarizeBy: none
+		sourceColumn: DayOfWeekName
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		dataType: string
+		lineageTag: 9f9f0a1b-2c3d-4e5f-6a7b-8c9d0e1f2a3b
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Date Hierarchy'
+		lineageTag: a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d
+
+		level Year
+			lineageTag: b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e
+			column: Year
+
+		level Quarter
+			lineageTag: c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f
+			column: Quarter
+
+		level Month
+			lineageTag: d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a
+			column: MonthName
+
+		level Date
+			lineageTag: e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b
+			column: Date
+
+	partition Dim_Date = m
+		mode: import
+		source =
+				let
+					StartDate = #date(1983, 1, 1),
+					EndDate = #date(2025, 12, 31),
+					DayCount = Duration.Days(EndDate - StartDate) + 1,
+					DateList = List.Dates(StartDate, DayCount, #duration(1,0,0,0)),
+					TableFromList = Table.FromList(DateList, Splitter.SplitByNothing()),
+					ChangedType = Table.RenameColumns(TableFromList,{{"Column1", "Date"}}),
+					AddYear = Table.AddColumn(ChangedType, "Year", each Date.Year([Date]), Int64.Type),
+					AddQuarter = Table.AddColumn(AddYear, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date]))),
+					AddMonth = Table.AddColumn(AddQuarter, "Month", each Date.Month([Date]), Int64.Type),
+					AddMonthName = Table.AddColumn(AddMonth, "MonthName", each Date.MonthName([Date])),
+					AddDay = Table.AddColumn(AddMonthName, "Day", each Date.Day([Date]), Int64.Type),
+					AddDayOfWeek = Table.AddColumn(AddDay, "DayOfWeek", each Date.DayOfWeek([Date], Day.Monday) + 1, Int64.Type),
+					AddDayOfWeekName = Table.AddColumn(AddDayOfWeek, "DayOfWeekName", each Date.DayOfWeekName([Date])),
+					AddYearMonth = Table.AddColumn(AddDayOfWeekName, "YearMonth", each Text.From([Year]) & "-" & Text.PadStart(Text.From([Month]), 2, "0"))
+				in
+					AddYearMonth
+
+	annotation PBI_ResultType = Table
+

@@ -8,7 +8,7 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBI_ProTooling = ["DevMode"]
+annotation PBI_ProTooling = ["DevMode","TMDLView_Desktop"]
 
 annotation PBI_QueryOrder = ["Fact_Shows","Dim_Venues","Dim_Songs","Fact_Era_Summary","Fact_State_Summary","Fact_Year_Trend","Top_50_Songs","PhishDataSource","Fact_Setlists","Dim_Date"]
 
