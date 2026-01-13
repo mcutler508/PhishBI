@@ -88,6 +88,82 @@ def fetch_setlist_for_show(showdate):
     setlist = fetch_api(f"setlists/showdate/{showdate}.json")
     return setlist
 
+def parse_setlist_structure(setlist_data, showid, showdate):
+    """Parse setlist structure into flat records"""
+    records = []
+
+    # API returns a flat list of songs directly
+    if not isinstance(setlist_data, list):
+        return records
+
+    for song_obj in setlist_data:
+        # Each song is already a flat record with all details
+        records.append({
+            'ShowID': showid,
+            'ShowDate': showdate,
+            'SongID': song_obj.get('songid'),
+            'SetNumber': song_obj.get('set', 'Unknown'),
+            'SongPosition': song_obj.get('position', 0),
+            'SongNotes': song_obj.get('footnote', '')
+        })
+
+    return records
+
+def fetch_all_setlists(shows_data):
+    """Fetch setlist data for all shows with progress tracking"""
+    print("Fetching setlists for all shows...")
+    all_setlist_records = []
+    total_shows = len(shows_data)
+
+    for idx, show in enumerate(shows_data, 1):
+        showdate = show.get('showdate')
+        showid = show.get('showid')
+
+        # Progress tracking
+        if idx % 100 == 0 or idx == total_shows:
+            print(f"  Progress: {idx}/{total_shows} shows ({idx/total_shows*100:.1f}%)")
+
+        # Fetch setlist
+        setlist_data = fetch_setlist_for_show(showdate)
+
+        if setlist_data:
+            # Parse setlist structure and flatten to records
+            setlist_records = parse_setlist_structure(setlist_data, showid, showdate)
+            all_setlist_records.extend(setlist_records)
+
+        # Rate limiting
+        time.sleep(0.5)
+
+    print(f"Total setlist records fetched: {len(all_setlist_records)}")
+    return all_setlist_records
+
+def process_setlists_data(setlist_records):
+    """Process setlist records into structured DataFrame"""
+    print("Processing setlists data...")
+
+    if not setlist_records:
+        print("  No setlist records to process")
+        return pd.DataFrame()
+
+    df = pd.DataFrame(setlist_records)
+
+    # Add auto-increment ID
+    df.insert(0, 'SetlistID', range(1, len(df) + 1))
+
+    # Clean and validate
+    df = df[df['SongID'].notna()]  # Remove records without SongID
+
+    if len(df) > 0:
+        df['SongID'] = df['SongID'].astype('int64')
+        df['ShowID'] = df['ShowID'].astype('int64')
+        df['SongPosition'] = df['SongPosition'].astype('int64')
+
+    print(f"  Total setlist records: {len(df):,}")
+    print(f"  Unique shows: {df['ShowID'].nunique():,}" if len(df) > 0 else "  Unique shows: 0")
+    print(f"  Unique songs: {df['SongID'].nunique():,}" if len(df) > 0 else "  Unique songs: 0")
+
+    return df
+
 def process_shows_data(shows_data):
     """Process shows data into structured format"""
     print("Processing shows data...")
@@ -122,7 +198,7 @@ def process_venues_data(venues_data):
     for venue in venues_data:
         venues_list.append({
             'VenueID': venue.get('venueid'),
-            'VenueName': venue.get('name'),
+            'VenueName': venue.get('venuename'),
             'City': venue.get('city'),
             'State': venue.get('state'),
             'Country': venue.get('country'),
@@ -149,6 +225,15 @@ def process_songs_data(songs_data):
         })
     
     df = pd.DataFrame(songs_list)
+
+    # Remove duplicate SongIDs, keeping the first occurrence
+    original_count = len(df)
+    df = df.drop_duplicates(subset=['SongID'], keep='first')
+    duplicates_removed = original_count - len(df)
+
+    if duplicates_removed > 0:
+        print(f"  Removed {duplicates_removed} duplicate songs (kept first occurrence)")
+
     return df
 
 def determine_era(year):
@@ -213,15 +298,19 @@ def main():
     shows_data = fetch_all_shows()
     venues_data = fetch_all_venues()
     songs_data = fetch_all_songs()
-    
+
     if not shows_data:
         print("ERROR: Failed to fetch shows data")
         return
-    
+
+    # Fetch setlists for all shows
+    setlists_data = fetch_all_setlists(shows_data)
+
     # Process data
     df_shows = process_shows_data(shows_data)
     df_venues = process_venues_data(venues_data) if venues_data else pd.DataFrame()
     df_songs = process_songs_data(songs_data) if songs_data else pd.DataFrame()
+    df_setlists = process_setlists_data(setlists_data) if setlists_data else pd.DataFrame()
     
     # Add Era column to shows
     df_shows['Era'] = df_shows['Year'].apply(determine_era)
@@ -239,8 +328,9 @@ def main():
         lambda x: x['TotalShows'] / (x['EndYear'] - x['StartYear'] + 1), axis=1
     )
     
-    # Shows by State
-    state_summary = df_shows.groupby('State').agg({
+    # Shows by State (exclude shows with blank/null State values for relationship integrity)
+    df_shows_with_state = df_shows[df_shows['State'].notna() & (df_shows['State'] != '')]
+    state_summary = df_shows_with_state.groupby('State').agg({
         'ShowID': 'count',
         'VenueName': 'nunique'
     }).reset_index()
@@ -266,6 +356,7 @@ def main():
         'Fact_Shows': df_shows,
         'Dim_Venues': df_venues,
         'Dim_Songs': df_songs,
+        'Fact_Setlists': df_setlists,
         'Fact_Era_Summary': era_summary,
         'Fact_State_Summary': state_summary,
         'Fact_Year_Trend': year_summary,
@@ -276,6 +367,7 @@ def main():
             'TotalShows': len(df_shows),
             'TotalVenues': len(df_venues),
             'TotalSongs': len(df_songs),
+            'TotalSetlistRecords': len(df_setlists),
             'YearRange': f"{df_shows['Year'].min()}-{df_shows['Year'].max()}"
         }])
     }

@@ -10,7 +10,7 @@ annotation __PBI_TimeIntelligenceEnabled = 1
 
 annotation PBI_ProTooling = ["DevMode"]
 
-ref expression PhishDataSource
+annotation PBI_QueryOrder = ["Fact_Shows","Dim_Venues","Dim_Songs","Fact_Era_Summary","Fact_State_Summary","Fact_Year_Trend","Top_50_Songs","PhishDataSource","Fact_Setlists","Dim_Date"]
 
 ref table Fact_Shows
 ref table Dim_Venues
@@ -19,6 +19,8 @@ ref table Fact_Era_Summary
 ref table Fact_State_Summary
 ref table Fact_Year_Trend
 ref table Top_50_Songs
+ref table Fact_Setlists
+ref table Dim_Date
 
 ref cultureInfo en-US
 

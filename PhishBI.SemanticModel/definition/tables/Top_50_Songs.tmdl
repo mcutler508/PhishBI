@@ -1,12 +1,12 @@
 table Top_50_Songs
 	lineageTag: a3b2c8d9-e7f0-0a1b-2c3d-4e5f6a7b8c9d
 
-	column Rank
+	column SongID
 		dataType: int64
 		formatString: 0
 		lineageTag: 1r1r2s3t-4u5v-6w7x-8y9z-0a1b2c3d4e5f
 		summarizeBy: none
-		sourceColumn: Rank
+		sourceColumn: SongID
 
 		annotation SummarizationSetBy = Automatic
 
@@ -27,6 +27,30 @@ table Top_50_Songs
 
 		annotation SummarizationSetBy = Automatic
 
+	column Debut
+		dataType: string
+		lineageTag: c9982111-43af-44b6-b651-aa72cf70e024
+		summarizeBy: none
+		sourceColumn: Debut
+
+		annotation SummarizationSetBy = Automatic
+
+	column LastPlayed
+		dataType: string
+		lineageTag: b559ed6f-add7-4d24-bab2-9f48ee130536
+		summarizeBy: none
+		sourceColumn: LastPlayed
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gap
+		dataType: string
+		lineageTag: 3a28a57c-570c-4c9b-9e77-70facb0abd09
+		summarizeBy: none
+		sourceColumn: Gap
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Top_50_Songs = m
 		mode: import
 		source =
@@ -35,7 +59,7 @@ table Top_50_Songs
 					Top_50_Songs_Sheet = Source{[Item="Top_50_Songs",Kind="Sheet"]}[Data],
 					PromotedHeaders = Table.PromoteHeaders(Top_50_Songs_Sheet, [PromoteAllScalars=true]),
 					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
-						{"Rank", Int64.Type},
+						{"SongID", Int64.Type},
 						{"SongName", type text},
 						{"TimesPlayed", Int64.Type}
 					})

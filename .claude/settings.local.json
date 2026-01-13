@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(python fetch_phish_data.py:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python:*)"
     ]
   }
 }

@@ -2,3 +2,23 @@ relationship 3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d
 	fromColumn: Fact_Shows.VenueID
 	toColumn: Dim_Venues.VenueID
 
+relationship 4b5c6d7e-8f9a-0b1c-2d3e-4f5a6b7c8d9e
+	fromColumn: Fact_Shows.Era
+	toColumn: Fact_Era_Summary.Era
+
+relationship 6d7e8f9a-0b1c-2d3e-4f5a-6b7c8d9e0f1a
+	fromColumn: Fact_Shows.Year
+	toColumn: Fact_Year_Trend.Year
+
+relationship 7e8f9a0b-1c2d-3e4f-5a6b-7c8d9e0f1a2b
+	fromColumn: Fact_Setlists.ShowID
+	toColumn: Fact_Shows.ShowID
+
+relationship 8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c
+	fromColumn: Fact_Setlists.SongID
+	toColumn: Dim_Songs.SongID
+
+relationship 9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d
+	fromColumn: Fact_Shows.ShowDate
+	toColumn: Dim_Date.Date
+

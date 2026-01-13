@@ -10,12 +10,12 @@ table Fact_Year_Trend
 
 		annotation SummarizationSetBy = Automatic
 
-	column TotalShows
+	column ShowCount
 		dataType: int64
 		formatString: 0
 		lineageTag: 2z2z3a4b-5c6d-7e8f-9g0h-1i2j3k4l5m6n
 		summarizeBy: sum
-		sourceColumn: TotalShows
+		sourceColumn: ShowCount
 
 		annotation SummarizationSetBy = Automatic
 
@@ -28,7 +28,7 @@ table Fact_Year_Trend
 					PromotedHeaders = Table.PromoteHeaders(Fact_Year_Trend_Sheet, [PromoteAllScalars=true]),
 					ChangedType = Table.TransformColumnTypes(PromotedHeaders,{
 						{"Year", Int64.Type},
-						{"TotalShows", Int64.Type}
+						{"ShowCount", Int64.Type}
 					})
 				in
 					ChangedType

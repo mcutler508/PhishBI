@@ -1,0 +1,169 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "af95e08583552003ec75",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "height": 719.50614968665514,
+    "width": 389.19905605826182,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Shows"
+                    }
+                  },
+                  "Property": "VenueName"
+                }
+              },
+              "queryRef": "Fact_Shows.VenueName",
+              "nativeQueryRef": "VenueName",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Setlists"
+                    }
+                  },
+                  "Property": "ShowDate"
+                }
+              },
+              "queryRef": "Fact_Setlists.ShowDate",
+              "nativeQueryRef": "ShowDate",
+              "active": false
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Setlists"
+                    }
+                  },
+                  "Property": "SetNumber"
+                }
+              },
+              "queryRef": "Fact_Setlists.SetNumber",
+              "nativeQueryRef": "SetNumber",
+              "active": false
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Songs"
+                    }
+                  },
+                  "Property": "SongName"
+                }
+              },
+              "queryRef": "Dim_Songs.SongName",
+              "nativeQueryRef": "SongName",
+              "active": false
+            }
+          ]
+        }
+      }
+    },
+    "expansionStates": [
+      {
+        "roles": [
+          "Rows"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "Fact_Shows.VenueName"
+            ],
+            "isCollapsed": true,
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Shows"
+                    }
+                  },
+                  "Property": "VenueName"
+                }
+              }
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "Fact_Setlists.ShowDate"
+            ],
+            "isCollapsed": true,
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Setlists"
+                    }
+                  },
+                  "Property": "ShowDate"
+                }
+              }
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "Fact_Setlists.SetNumber"
+            ],
+            "isCollapsed": true,
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fact_Setlists"
+                    }
+                  },
+                  "Property": "SetNumber"
+                }
+              }
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "Dim_Songs.SongName"
+            ],
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Songs"
+                    }
+                  },
+                  "Property": "SongName"
+                }
+              }
+            ],
+            "isPinned": true
+          }
+        ],
+        "root": {}
+      }
+    ],
+    "drillFilterOtherVisuals": true
+  }
+}

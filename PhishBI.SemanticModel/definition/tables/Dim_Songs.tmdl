@@ -1,6 +1,127 @@
 table Dim_Songs
 	lineageTag: 69c8d4e5-f3a6-6b7c-8d9e-0f1a2b3c4d5e
 
+	/// =========================================
+	/// TIER 1: ATOMIC BASE MEASURES (Songs)
+	/// =========================================
+	measure '# Songs' = COUNTROWS(Dim_Songs)
+		formatString: #,0
+		lineageTag: 18cb7c12-cf95-4c86-b74c-74203bdfe886
+
+	measure '# Unique Songs' = DISTINCTCOUNT(Dim_Songs[SongID])
+		formatString: #,0
+		lineageTag: 0b9cbc10-5ad3-4a90-9db9-a2e91dbfbb9f
+
+	measure 'Total Times Played' = SUM(Dim_Songs[TimesPlayed])
+		formatString: #,0
+		lineageTag: c2cb851f-28c2-4b54-b319-b417b52efa0f
+
+	measure 'Total Gap Days' = SUM(Dim_Songs[Gap])
+		formatString: #,0
+		lineageTag: 182a6d7a-ca3c-495e-ab36-b63639b3f68c
+
+	/// =========================================
+	/// TIER 2: SEMANTIC BUSINESS MEASURES (Songs)
+	/// =========================================
+	measure 'Avg Times Played per Song' = DIVIDE([Total Times Played], [# Songs], 0)
+		formatString: #,0.0
+		lineageTag: 4d8b8ff3-cfe1-4064-8a68-be6594591868
+
+	measure 'Avg Gap Between Plays' = DIVIDE([Total Gap Days], [# Songs], 0)
+		formatString: #,0.0
+		lineageTag: cbbe0fb5-13eb-43a3-924b-980758ceca4e
+
+	measure 'Median Times Played' = MEDIAN(Dim_Songs[TimesPlayed])
+		formatString: #,0
+		lineageTag: 691be332-f80c-4098-85a8-b24996458979
+
+	measure 'Songs Played 100+ Times' =
+			CALCULATE(
+			    [# Songs],
+			    Dim_Songs[TimesPlayed] >= 100
+			)
+		formatString: #,0
+		lineageTag: 985e7e0c-ff23-4415-bcbc-08b8e8550e69
+
+	measure 'Songs Played 500+ Times' =
+			CALCULATE(
+			    [# Songs],
+			    Dim_Songs[TimesPlayed] >= 500
+			)
+		formatString: #,0
+		lineageTag: 746b9ca2-9752-40ca-b681-37ad6ffcc327
+
+	measure '% Songs Played 100+ Times' = DIVIDE([Songs Played 100+ Times], [# Songs], 0)
+		formatString: 0.0%
+		lineageTag: 27b17d7e-ed78-443d-9bbc-95a874348c77
+
+	/// =========================================
+	/// TIER 4: KPI / NARRATIVE MEASURES (Songs)
+	/// =========================================
+	measure 'Most Played Song' =
+			VAR MaxPlays =
+			    MAXX(
+			        VALUES(Dim_Songs[SongName]),
+			        MAX(Dim_Songs[TimesPlayed])
+			    )
+			RETURN
+			    CALCULATE(
+			        MIN(Dim_Songs[SongName]),
+			        FILTER(
+			            VALUES(Dim_Songs[SongName]),
+			            MAX(Dim_Songs[TimesPlayed]) = MaxPlays
+			        )
+			    )
+		displayFolder: Song Records
+		lineageTag: eb04fedf-4bd3-4b2a-bbca-e1f059a2370a
+
+	measure 'Most Played Song Count' =
+			MAXX(
+			    VALUES(Dim_Songs[SongName]),
+			    MAX(Dim_Songs[TimesPlayed])
+			)
+		formatString: #,0
+		displayFolder: Song Records
+		lineageTag: ad43ff61-a410-4342-bbdc-bf1ab4b0363f
+
+	measure 'Song Rank by Plays' =
+			RANKX(
+			    ALL(Dim_Songs[SongName]),
+			    MAX(Dim_Songs[TimesPlayed]),
+			    ,
+			    DESC,
+			    DENSE
+			)
+		formatString: #,0
+		displayFolder: Song Leaderboards
+		lineageTag: 76ae9820-7cb8-495e-86b4-b19106daeeb9
+
+	measure 'Longest Gap Song' =
+			VAR MaxGap =
+			    MAXX(
+			        VALUES(Dim_Songs[SongName]),
+			        MAX(Dim_Songs[Gap])
+			    )
+			RETURN
+			    CALCULATE(
+			        MIN(Dim_Songs[SongName]),
+			        FILTER(
+			            VALUES(Dim_Songs[SongName]),
+			            MAX(Dim_Songs[Gap]) = MaxGap
+			        )
+			    )
+		displayFolder: Song Records
+		lineageTag: 3354a121-3e46-45db-9122-4c8ecc52b505
+
+	measure 'Longest Gap Days' =
+			MAXX(
+			    VALUES(Dim_Songs[SongName]),
+			    MAX(Dim_Songs[Gap])
+			)
+		formatString: #,0
+		displayFolder: Song Records
+		lineageTag: ea76b6d6-ee0e-4c33-9fd4-6e4a325406cf
+
 	column SongID
 		dataType: int64
 		isKey
@@ -50,6 +171,14 @@ table Dim_Songs
 		lineageTag: 6x6x7y8z-9a0b-1c2d-3e4f-5g6h7i8j9k0l
 		summarizeBy: sum
 		sourceColumn: Gap
+
+		annotation SummarizationSetBy = Automatic
+
+	column Slug
+		dataType: string
+		lineageTag: 4ccffcc1-44bf-4b65-96a2-7e84e5cbb1c1
+		summarizeBy: none
+		sourceColumn: Slug
 
 		annotation SummarizationSetBy = Automatic
 
